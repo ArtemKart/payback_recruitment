@@ -24,17 +24,18 @@ To run the fastapi application in docker container, ensure your docker is runnin
 ```shell
 docker --help
 ```
+
+Create a copy of `.env` file:
+```shell
+cp .env-template .env
+```
+
 If you want to run the application with default env variables, just run:
 ```shell
 docker compose up -d --build
 
 # or if you have deprecated docker-compose version
 docker-compose up -d --build
-```
-
-otherwise, create a copy `.env` file from `.env-template` file, make you changes and run docker compose
-```shell
-cp .env-template .env
 ```
 
 API docs: http://127.0.0.1:8000/docs
