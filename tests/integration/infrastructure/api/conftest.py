@@ -3,11 +3,11 @@ from pathlib import Path
 
 import pytest
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 from sqlmodel import SQLModel, Session
 from starlette.testclient import TestClient
 
 from app.infrastructure.api.main import app
+from app.infrastructure.config import Settings, get_settings
 from app.infrastructure.persistence.engine import get_session
 from app.infrastructure.persistence.models.models import ProjectModel, TaskModel
 
@@ -32,10 +32,21 @@ def session(test_db):
 
 
 @pytest.fixture
+def test_settings() -> Settings:
+    return Settings(
+        AUTO_COMPLETE_PROJECTS=True,
+        AUTO_ADJUST_TASK_DEADLINES=True,
+        _env_file=None,
+    )
+
+
+@pytest.fixture
 def client(
     session: Session,
+    test_settings: Settings,
 ) -> TestClient:
     app.dependency_overrides[get_session] = lambda: session
+    app.dependency_overrides[get_settings] = lambda: test_settings
     yield TestClient(app)
     app.dependency_overrides.clear()
 

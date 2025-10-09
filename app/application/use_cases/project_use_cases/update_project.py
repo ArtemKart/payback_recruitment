@@ -4,7 +4,7 @@ from uuid import UUID
 from app.application.dto.project_dto import UpdateProjectDTO, ProjectDTO
 from app.application.use_cases.project_use_cases.project_use_case import ProjectUseCase
 from app.domain.event_handlers import ProjectDeadlineChangedHandler
-from app.domain.exceptions import DomainError, NotFoundError, ValidationError
+from app.domain.exceptions import NotFoundError, ValidationError
 from app.domain.repositories.project_repository import ProjectRepository
 
 

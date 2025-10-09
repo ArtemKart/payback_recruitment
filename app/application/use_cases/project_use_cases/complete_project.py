@@ -18,7 +18,7 @@ class CompleteProjectUseCase(ProjectUseCase):
     def execute(self, project_id: UUID) -> ProjectDTO:
         project = self._project_repository.get_by_id(project_id)
         if not project:
-            raise NotFoundError(f"Project not found")
+            raise NotFoundError("Project not found")
         tasks = self._task_repository.get_by_project_id(project_id)
         project.mark_as_completed(tasks)
         updated_project = self._project_repository.save(project)

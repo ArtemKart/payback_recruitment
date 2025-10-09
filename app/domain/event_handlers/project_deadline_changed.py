@@ -1,4 +1,4 @@
-from app.domain.events import ProjectDeadlineChangedEvent, DomainEvent
+from app.domain.events import ProjectDeadlineChangedEvent
 from app.domain.repositories.task_repository import TaskRepository
 from app.domain.services.deadline_enforcement_service import DeadlineEnforcementService
 

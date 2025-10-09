@@ -2,7 +2,7 @@ from uuid import UUID
 
 from app.application.dto.task_dto import TaskDTO
 from app.application.use_cases.task_use_cases.task_use_case import TaskUseCase
-from app.domain.exceptions import DomainError, NotFoundError
+from app.domain.exceptions import NotFoundError
 from app.domain.repositories.project_repository import ProjectRepository
 from app.domain.repositories.task_repository import TaskRepository
 

@@ -83,7 +83,7 @@ def test_create_task_with_valid_data() -> None:
     assert task.title == "Test Task"
     assert task.description == "Test description"
     assert task.deadline == deadline
-    assert task.is_completed is False
+    assert not task.is_completed
     assert task.project_id == project_id
     assert task.created_at == now
     assert task.updated_at == now
@@ -111,15 +111,8 @@ def test_mark_as_completed(task: Task) -> None:
 
     task.mark_as_completed()
 
-    assert task.is_completed is True
+    assert task.is_completed
     assert task.updated_at > before_update
-
-
-def test_mark_as_completed_when_already_completed(completed_task: Task) -> None:
-    with pytest.raises(ConflictError) as exc_info:
-        completed_task.mark_as_completed()
-
-    assert str(exc_info.value) == "Task is already completed"
 
 
 def test_mark_as_completed_updates_timestamp(task: Task) -> None:
@@ -133,16 +126,8 @@ def test_reopen_completed_task(completed_task: Task) -> None:
 
     completed_task.reopen()
 
-    assert completed_task.is_completed is False
+    assert not completed_task.is_completed
     assert completed_task.updated_at > before_update
-
-
-def test_reopen_already_opened_task_raises_error(task: Task) -> None:
-    with pytest.raises(ConflictError) as exc_info:
-        task.reopen()
-
-    assert str(exc_info.value) == "Task is already opened"
-    assert task.is_completed is False
 
 
 def test_reopen_updates_timestamp(completed_task: Task) -> None:
@@ -214,12 +199,6 @@ def test_unassign_from_project(assigned_task: Task) -> None:
     assigned_task.unassign_from_project()
     assert assigned_task.project_id is None
     assert assigned_task.updated_at > before_update
-
-
-def test_unassign_from_project_when_not_assigned(task: Task) -> None:
-    with pytest.raises(ConflictError) as exc_info:
-        task.unassign_from_project()
-    assert str(exc_info.value) == "Task is not assigned"
 
 
 def test_unassign_from_project_updates_timestamp(assigned_task: Task) -> None:
@@ -330,33 +309,33 @@ def test_adjust_deadline_to_project_when_deadlines_are_equal(task: Task) -> None
 
 def test_is_overdue_when_deadline_passed(task: Task) -> None:
     task.deadline = datetime.now(timezone.utc) - timedelta(days=1)
-    assert task.is_overdue() is True
+    assert task.is_overdue()
 
 
 def test_is_overdue_when_deadline_not_passed(task: Task) -> None:
     task.deadline = datetime.now(timezone.utc) + timedelta(days=1)
-    assert task.is_overdue() is False
+    assert not task.is_overdue()
 
 
 def test_is_overdue_when_no_deadline(task_without_deadline: Task) -> None:
-    assert task_without_deadline.is_overdue() is False
+    assert not task_without_deadline.is_overdue()
 
 
 def test_is_overdue_when_task_is_completed(completed_task: Task) -> None:
     completed_task.deadline = datetime.now(timezone.utc) - timedelta(days=1)
-    assert completed_task.is_overdue() is False
+    assert not completed_task.is_overdue()
 
 
 def test_is_overdue_when_completed_with_future_deadline(completed_task: Task) -> None:
     completed_task.deadline = datetime.now(timezone.utc) + timedelta(days=10)
-    assert completed_task.is_overdue() is False
+    assert not completed_task.is_overdue()
 
 
 def test_is_overdue_when_incomplete_with_past_deadline(task: Task) -> None:
     task.deadline = datetime.now(timezone.utc) - timedelta(hours=1)
     task.is_completed = False
 
-    assert task.is_overdue() is True
+    assert task.is_overdue()
 
 
 def test_validate_deadline_against_project_deadline_with_valid_deadlines(

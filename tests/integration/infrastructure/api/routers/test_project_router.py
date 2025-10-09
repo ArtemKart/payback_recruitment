@@ -80,7 +80,7 @@ def test_create_project_happy_path(
     project_create_model: ProjectCreate,
     session: Session,
 ) -> None:
-    r = client.post(f"/projects", data=project_create_model.model_dump_json())
+    r = client.post("/projects", data=project_create_model.model_dump_json())
 
     assert r.status_code == 201
     project_response = r.json()
@@ -109,7 +109,7 @@ def test_create_project_422_deadline_passed(
     project_create_model: ProjectCreate,
 ) -> None:
     project_create_model.deadline = datetime.now(timezone.utc) + timedelta(days=-1)
-    r = client.post(f"/projects", data=project_create_model.model_dump_json())
+    r = client.post("/projects", data=project_create_model.model_dump_json())
     assert r.status_code == 422
     assert r.json()["detail"] == "Project deadline has passed"
 

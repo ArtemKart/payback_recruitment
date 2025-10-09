@@ -23,7 +23,7 @@ from app.infrastructure.persistence.repositories.sqlalchemy_task_repository impo
 )
 from app.domain.services.project_completion_service import ProjectCompletionService
 from app.domain.services.deadline_enforcement_service import DeadlineEnforcementService
-from app.infrastructure.config import get_settings
+from app.infrastructure.config import get_settings, Settings
 
 from app.application.use_cases.project_use_cases.create_project import (
     CreateProjectUseCase,
@@ -56,10 +56,9 @@ ProjectRepositoryDep = Annotated[
     SQLAlchemyProjectRepository, Depends(get_project_repository)
 ]
 TaskRepositoryDep = Annotated[SQLAlchemyTaskRepository, Depends(get_task_repository)]
+SettingsDep = Annotated[Settings, Depends(get_settings)]
 
-
-def get_completion_service() -> ProjectCompletionService:
-    settings = get_settings()
+def get_completion_service(settings: SettingsDep) -> ProjectCompletionService:
     return ProjectCompletionService(
         auto_complete_enabled=settings.AUTO_COMPLETE_PROJECTS
     )
@@ -100,8 +99,8 @@ def get_update_project_use_case(
     deadline_handler: Annotated[
         ProjectDeadlineChangedHandler, Depends(get_project_deadline_changed_handler)
     ],
+    settings: SettingsDep,
 ) -> UpdateProjectUseCase:
-    settings = get_settings()
     return UpdateProjectUseCase(
         project_repository=project_repo,
         deadline_handler=deadline_handler,

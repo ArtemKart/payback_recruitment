@@ -1,5 +1,5 @@
 import pytest
-from uuid import UUID, uuid4
+from uuid import uuid4
 from datetime import datetime, timezone, timedelta
 from unittest.mock import Mock
 
@@ -93,14 +93,14 @@ def test_task_without_project(
 
     result = use_case.execute(sample_task.id)
 
-    assert sample_task.is_completed is True
+    assert sample_task.is_completed
     task_repository.get_by_id.assert_called_once_with(sample_task.id)
     task_repository.update.assert_called_once_with(sample_task)
 
     project_repository.get_by_id.assert_not_called()
 
     assert result.id == completed_task.id
-    assert result.is_completed is True
+    assert result.is_completed
 
 
 def test_task_with_project_not_found(
@@ -132,7 +132,7 @@ def test_task_with_project_not_found(
     completion_service.handle_task_completed.assert_not_called()
 
     assert result.id == completed_task.id
-    assert result.is_completed is True
+    assert result.is_completed
 
 
 def test_complete_flow(
@@ -187,7 +187,7 @@ def test_complete_flow(
     project_repository.update.assert_called_once_with(sample_project)
 
     assert result.id == completed_task.id
-    assert result.is_completed is True
+    assert result.is_completed 
     assert result.project_id == sample_task.project_id
 
 
@@ -225,7 +225,7 @@ def test_returns_correct_dto_structure(
     assert result.title == completed_task.title
     assert result.description == completed_task.description
     assert result.deadline == completed_task.deadline
-    assert result.is_completed is True
+    assert result.is_completed 
     assert result.project_id is None
     assert result.created_at == completed_task.created_at
     assert result.updated_at == completed_task.updated_at

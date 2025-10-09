@@ -18,14 +18,10 @@ class Task:
     updated_at: datetime
 
     def mark_as_completed(self) -> None:
-        if self.is_completed:
-            raise ConflictError("Task is already completed")
         self.is_completed = True
         self.updated_at = datetime.now(timezone.utc)
 
     def reopen(self) -> None:
-        if not self.is_completed:
-            raise ConflictError("Task is already opened")
         self.is_completed = False
         self.updated_at = datetime.now(timezone.utc)
 
@@ -40,8 +36,6 @@ class Task:
         self.updated_at = datetime.now(timezone.utc)
 
     def unassign_from_project(self) -> None:
-        if self.project_id is None:
-            raise ConflictError("Task is not assigned")
         self.project_id = None
         self.updated_at = datetime.now(timezone.utc)
 

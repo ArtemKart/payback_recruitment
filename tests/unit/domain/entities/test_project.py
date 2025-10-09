@@ -4,7 +4,7 @@ from uuid import uuid4
 
 from app.domain.entities.project import Project
 from app.domain.entities.task import Task
-from app.domain.exceptions import ConflictError, ValidationError
+from app.domain.exceptions import ValidationError
 from app.domain.events import ProjectDeadlineChangedEvent
 
 
@@ -78,7 +78,7 @@ def test_create_project_with_valid_data() -> None:
     assert project.id == project_id
     assert project.title == title
     assert project.deadline == deadline
-    assert project.is_completed is False
+    assert not project.is_completed
     assert project.created_at == now
     assert project.updated_at == now
     assert project._domain_events == []
@@ -106,14 +106,14 @@ def test_mark_as_completed_with_all_tasks_completed(
 
     project.mark_as_completed(tasks)
 
-    assert project.is_completed is True
+    assert project.is_completed
     assert project.updated_at > before_update
 
 
 def test_mark_as_completed_with_empty_task_list(project: Project) -> None:
     project.mark_as_completed([])
 
-    assert project.is_completed is True
+    assert project.is_completed
 
 
 def test_mark_as_completed_with_incomplete_tasks_raises_error(
@@ -127,17 +127,7 @@ def test_mark_as_completed_with_incomplete_tasks_raises_error(
     assert (
         str(exc_info.value) == "Cannot complete project. Task(s) are still incomplete"
     )
-    assert project.is_completed is False
-
-
-def test_mark_as_completed_when_already_completed_raises_error(
-    completed_project: Project,
-    completed_task: Task,
-) -> None:
-    with pytest.raises(ConflictError) as exc_info:
-        completed_project.mark_as_completed([completed_task])
-
-    assert str(exc_info.value) == "Project is already completed"
+    assert not project.is_completed
 
 
 def test_mark_as_completed_with_multiple_completed_tasks(project: Project) -> None:
@@ -157,7 +147,7 @@ def test_mark_as_completed_with_multiple_completed_tasks(project: Project) -> No
 
     project.mark_as_completed(tasks)
 
-    assert project.is_completed is True
+    assert project.is_completed
 
 
 def test_reopen_completed_project(completed_project: Project) -> None:
@@ -165,17 +155,8 @@ def test_reopen_completed_project(completed_project: Project) -> None:
 
     completed_project.reopen()
 
-    assert completed_project.is_completed is False
+    assert not completed_project.is_completed
     assert completed_project.updated_at > before_update
-
-
-def test_reopen_already_opened_project_raises_error(project: Project) -> None:
-    assert project.is_completed == False
-    with pytest.raises(ConflictError) as exc_info:
-        project.reopen()
-
-    assert str(exc_info.value) == "Project is already opened"
-    assert project.is_completed is False
 
 
 def test_update_deadline_with_new_date(project: Project) -> None:
@@ -239,14 +220,14 @@ def test_should_auto_complete_all_conditions_met(
     completed_task: Task,
 ) -> None:
     result = project.should_auto_complete([completed_task], auto_complete_enabled=True)
-    assert result is True
+    assert result
 
 
 def test_should_auto_complete_feature_disabled(
     project: Project, completed_task: Task
 ) -> None:
     result = project.should_auto_complete([completed_task], auto_complete_enabled=False)
-    assert result is False
+    assert not result
 
 
 def test_should_auto_complete_project_already_completed(
@@ -257,7 +238,7 @@ def test_should_auto_complete_project_already_completed(
         [completed_task], auto_complete_enabled=True
     )
 
-    assert result is False
+    assert not result
 
 
 def test_should_auto_complete_with_incomplete_tasks(
@@ -265,12 +246,12 @@ def test_should_auto_complete_with_incomplete_tasks(
 ) -> None:
     tasks = [completed_task, incomplete_task]
     result = project.should_auto_complete(tasks, auto_complete_enabled=True)
-    assert result is False
+    assert not result
 
 
 def test_should_auto_complete_with_empty_task_list(project: Project) -> None:
     result = project.should_auto_complete([], auto_complete_enabled=True)
-    assert result is False
+    assert not result
 
 
 def test_should_auto_complete_with_multiple_completed_tasks(project: Project) -> None:
@@ -290,7 +271,7 @@ def test_should_auto_complete_with_multiple_completed_tasks(project: Project) ->
 
     result = project.should_auto_complete(tasks, auto_complete_enabled=True)
 
-    assert result is True
+    assert result
 
 
 def test_should_auto_complete_with_one_incomplete_task_among_many(
@@ -312,7 +293,7 @@ def test_should_auto_complete_with_one_incomplete_task_among_many(
 
     result = project.should_auto_complete(tasks, auto_complete_enabled=True)
 
-    assert result is False
+    assert not result
 
 
 def test_collect_domain_events_returns_events_and_clears_list(project: Project) -> None:

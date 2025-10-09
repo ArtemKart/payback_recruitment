@@ -59,7 +59,7 @@ def test_creates_project_successfully(
 
     assert saved_arg.title == "New Project"
     assert saved_arg.deadline == future_deadline
-    assert saved_arg.is_completed is False
+    assert not saved_arg.is_completed
     assert result.title == saved_project.title
 
 
@@ -88,6 +88,6 @@ def test_returns_correct_dto_structure(
     assert result.id == saved_project.id
     assert result.title == saved_project.title
     assert result.deadline == saved_project.deadline
-    assert result.is_completed is False
+    assert not result.is_completed
     assert result.created_at == saved_project.created_at
     assert result.updated_at == saved_project.updated_at

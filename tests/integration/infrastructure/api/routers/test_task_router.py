@@ -1,9 +1,8 @@
 from datetime import datetime, timezone, timedelta
-from typing import Type
 from uuid import UUID, uuid4
 
 import pytest
-from sqlmodel import Session, SQLModel
+from sqlmodel import Session
 from starlette.testclient import TestClient
 
 from app.infrastructure.api.schemas.task_schemas import TaskCreate, TaskUpdate
@@ -174,7 +173,7 @@ def test_complete_task_happy_path(
     session.commit()
     session.refresh(task_model)
 
-    assert task_model.is_completed == False
+    assert not task_model.is_completed
     r = client.patch(f"/tasks/{task_model.id}/complete")
 
     updated_task = session.get(TaskModel, UUID(r.json()["id"]))
@@ -197,8 +196,8 @@ def test_complete_task_with_project_complete_happy_path(
     session.commit()
     session.refresh(task_model)
 
-    assert task_model.is_completed == False
-    assert project_model.is_completed == False
+    assert not task_model.is_completed
+    assert not project_model.is_completed
     assert project_model.tasks[0] == task_model
 
     r = client.patch(f"/tasks/{task_model.id}/complete")
@@ -207,8 +206,8 @@ def test_complete_task_with_project_complete_happy_path(
     updated_task = session.get(TaskModel, UUID(r.json()["id"]))
     updated_project = session.get(ProjectModel, project_model.id)
 
-    assert updated_task.is_completed == True
-    assert updated_project.is_completed == True
+    assert updated_task.is_completed
+    assert updated_project.is_completed
 
 
 def test_reopen_unassigned_task_happy_path(
@@ -221,13 +220,13 @@ def test_reopen_unassigned_task_happy_path(
     session.commit()
     session.refresh(task_model)
 
-    assert task_model.is_completed == True
+    assert task_model.is_completed
 
     r = client.patch(f"/tasks/{task_model.id}/reopen")
     assert r.status_code == 200
 
     updated_task = session.get(TaskModel, UUID(r.json()["id"]))
-    assert updated_task.is_completed == False
+    assert not updated_task.is_completed
 
 
 def test_reopen_assigned_task_happy_path(
@@ -258,5 +257,5 @@ def test_reopen_assigned_task_happy_path(
     updated_project = session.get(ProjectModel, project_model.id)
 
     assert updated_task.project_id == updated_project.id
-    assert updated_task.is_completed == False
-    assert updated_project.is_completed == False
+    assert not updated_task.is_completed
+    assert not updated_project.is_completed

@@ -3,7 +3,7 @@ from datetime import datetime, timezone
 from uuid import UUID
 
 from app.domain.entities.task import Task
-from app.domain.exceptions import ConflictError, ValidationError
+from app.domain.exceptions import ValidationError
 from app.domain.events import DomainEvent, ProjectDeadlineChangedEvent
 
 
@@ -24,21 +24,16 @@ class Project:
             self._domain_events = []
 
     def mark_as_completed(self, tasks: list[Task]) -> None:
-        if self.is_completed:
-            raise ConflictError("Project is already completed")
-
         incomplete_tasks = [task for task in tasks if not task.is_completed]
         if incomplete_tasks:
             raise ValidationError(
-                f"Cannot complete project. Task(s) are still incomplete"
+                "Cannot complete project. Task(s) are still incomplete"
             )
 
         self.is_completed = True
         self.updated_at = datetime.now(timezone.utc)
 
     def reopen(self) -> None:
-        if not self.is_completed:
-            raise ConflictError("Project is already opened")
         self.is_completed = False
         self.updated_at = datetime.now(timezone.utc)
 

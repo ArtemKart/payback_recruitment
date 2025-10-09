@@ -166,7 +166,7 @@ def test_filter_by_is_overdue_true(
     result = use_case.execute(filters)
 
     assert len(result) == 1
-    assert result[0].is_overdue == True
+    assert result[0].is_overdue
 
 
 def test_filter_by_is_overdue_false(
